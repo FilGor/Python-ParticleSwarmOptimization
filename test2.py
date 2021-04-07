@@ -52,8 +52,8 @@ maxNumberOfIterations = 1000
 swarmSize = 3
 w = 1   #wsp. inercji
 wdamp = 0.99
-c1 = 0.2  #wsp. personal acc
-c2 = 50#wsp. social acc
+c1 = 2  #wsp. personal acc
+c2 = 2#wsp. social acc
 
 maxVelocity = (upperBound -lowerBound) * 0.2
 minVelocity = maxVelocity * -1
@@ -64,6 +64,7 @@ class Particle:
         self.position = []
         self.velocity = []
         self.personalBest = []
+        self.color = colors[random.randint(0,50)]
         for i in range(3):
             self.velocity.append(random.uniform(-1, 1))
             self.position.append(random.uniform(lowerBound,upperBound))
@@ -130,7 +131,7 @@ def mainPSO():
 
             a = a + 1 if a < 50 else 0
             ax.plot(particle.position[0], particle.position[1], particle.position[2],
-             color = colors[a], marker='o')
+             color = particle.color, marker='o')
             particle.update_velocity()
             particle.updatePosition()
             particle.cost = func(particle)
