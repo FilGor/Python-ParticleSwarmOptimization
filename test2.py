@@ -43,18 +43,17 @@ def func(particle): #rastring
 
 
 dimensions = 3
-positionsAkaSolutions = np.empty((1,dimensions)) # 1 - > 50
 lowerBound = -5.12
 upperBound = 5.12
 
 ####PSO Parameters####
 
 maxNumberOfIterations = 1000
-swarmSize = 20
+swarmSize = 3
 w = 1   #wsp. inercji
 wdamp = 0.99
-c1 = 2  #wsp. personal acc
-c2 = 2  #wsp. global acc
+c1 = 0.2  #wsp. personal acc
+c2 = 50#wsp. social acc
 
 maxVelocity = (upperBound -lowerBound) * 0.2
 minVelocity = maxVelocity * -1
@@ -69,6 +68,7 @@ class Particle:
             self.velocity.append(random.uniform(-1, 1))
             self.position.append(random.uniform(lowerBound,upperBound))
             self.personalBest.append(self.position[i])
+        self.position[2] = func(self) # z value
         self.cost = func(self)  # measuerment/costvalue
         self.bestCost = self.cost
 
@@ -147,11 +147,12 @@ def mainPSO():
                 for k in range(3):
                     particle.personalBest[k] = particle.position[k] #local position
             print(particle.position[0], particle.position[1], particle.position[2])
+            plt.suptitle("Global best cost:")
+            plt.title(globalBestCost)
             print(f'GLOBAL BEST:',globalBestCost)
-        plt.pause(0.00000001)
+        plt.pause(0.1)
         w = w *wdamp
         ax.clear()
-
         ax.plot_wireframe(X, Y, Z, linewidth=0.08)
 
 # Attaching 3D axis to the figure
