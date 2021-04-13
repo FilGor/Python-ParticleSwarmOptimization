@@ -49,10 +49,10 @@ upperBound = 5.12
 ####PSO Parameters####
 
 maxNumberOfIterations = 1000
-swarmSize = 10
-w = 1  #wsp. inercji
+swarmSize = 3
+w = 2  #wsp. inercji
 wdamp = 0.99
-c1 = 1  #wsp. personal acc
+c1 = 3  #wsp. personal acc
 c2 = 2  #wsp. social acc
 
 maxVelocity = (upperBound -lowerBound) * 0.2
@@ -81,7 +81,7 @@ class Particle:
 
             global_comp = c1 * r1 * (self.personalBest[i] - self.position[i])
             social_comp = c2 * r2 * (globalBestPosition[i] - self.position[i])
-            self.velocity[i] = (w * self.velocity[i] + global_comp + social_comp) / 50
+            self.velocity[i] = (w * self.velocity[i] + global_comp + social_comp)
             if self.velocity[i] > maxVelocity:
                 self.velocity[i] = maxVelocity
             if self.velocity[i] < minVelocity:
@@ -90,7 +90,7 @@ class Particle:
 
     def updatePosition(self):
         for i in range(2):
-            self.position[i] = self.position[i] + self.velocity[i]
+            self.position[i] = self.position[i] + self.velocity[i] /20
             if self.position[i] > upperBound:
                 self.position[i] = upperBound
             if self.position[i] < lowerBound:
@@ -117,9 +117,8 @@ def mainPSO():
     globalBestCost = 9999999999999999999  #this values are overwritten below
     globalBestPosition = [0,0,0] # this values are overwritten below
     bestCostsOfEachIteration = []
-
+    tempParticle = Particle()
     for i in range(3): ##init of first particle in population
-        tempParticle = Particle()
         population.append(tempParticle)
         globalBestPosition[i] = tempParticle.position[i]
     globalBestCost = tempParticle.cost
@@ -135,8 +134,8 @@ def mainPSO():
     ##end of initialization
 
     for i in range(maxNumberOfIterations):
-        for particle in population:
 
+        for particle in population:
             a = a + 1 if a < 50 else 0
             ax.plot(particle.position[0], particle.position[1], particle.position[2],
              color = particle.color, marker='o')
@@ -159,10 +158,10 @@ def mainPSO():
             plt.suptitle("Global best cost:")
             plt.title(globalBestCost)
             print(f'GLOBAL BEST:',globalBestCost)
-        plt.pause(0.1)
+        plt.pause(0.05)
         w = w *wdamp
         ax.clear()
-        ax.plot_wireframe(X, Y, Z, linewidth=0.08)
+        ax.plot_wireframe(X, Y, Z, alpha=0.1)
 
 # Attaching 3D axis to the figure
 fig = plt.figure()
