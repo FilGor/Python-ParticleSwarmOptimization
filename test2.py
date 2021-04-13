@@ -49,11 +49,11 @@ upperBound = 5.12
 ####PSO Parameters####
 
 maxNumberOfIterations = 1000
-swarmSize = 3
-w = 1   #wsp. inercji
+swarmSize = 40
+w = 1  #wsp. inercji
 wdamp = 0.99
-c1 = 2  #wsp. personal acc
-c2 = 2#wsp. social acc
+c1 = 0.1  #wsp. personal acc
+c2 = 0.1#wsp. social acc
 
 maxVelocity = (upperBound -lowerBound) * 0.2
 minVelocity = maxVelocity * -1
@@ -70,6 +70,7 @@ class Particle:
             self.position.append(random.uniform(lowerBound,upperBound))
             self.personalBest.append(self.position[i])
         self.position[2] = func(self) # z value
+        self.personalBest.append(self.position[2])
         self.cost = func(self)  # measuerment/costvalue
         self.bestCost = self.cost
 
