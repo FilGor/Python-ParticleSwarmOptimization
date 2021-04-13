@@ -49,11 +49,11 @@ upperBound = 5.12
 ####PSO Parameters####
 
 maxNumberOfIterations = 1000
-swarmSize = 40
+swarmSize = 10
 w = 1  #wsp. inercji
 wdamp = 0.99
-c1 = 0.1  #wsp. personal acc
-c2 = 0.1#wsp. social acc
+c1 = 1  #wsp. personal acc
+c2 = 2  #wsp. social acc
 
 maxVelocity = (upperBound -lowerBound) * 0.2
 minVelocity = maxVelocity * -1
@@ -79,9 +79,9 @@ class Particle:
             r1 = random.random()
             r2 = random.random()
 
-            cog_comp = c1 * r1 * (self.personalBest[i] - self.position[i])
+            global_comp = c1 * r1 * (self.personalBest[i] - self.position[i])
             social_comp = c2 * r2 * (globalBestPosition[i] - self.position[i])
-            self.velocity[i] = w * self.velocity[i] + cog_comp + social_comp
+            self.velocity[i] = (w * self.velocity[i] + global_comp + social_comp) / 50
             if self.velocity[i] > maxVelocity:
                 self.velocity[i] = maxVelocity
             if self.velocity[i] < minVelocity:
@@ -98,22 +98,6 @@ class Particle:
         self.position[2] = func(self)
 
 
-##Initialization of population
-population=[]
-globalBestCost = 9999999999999999999 # temp
-globalBestPosition =[0,0,0] #temp
-
-for i in range(swarmSize):
-    tempParticle = Particle()
-    population.append(tempParticle)
-    if tempParticle.bestCost < globalBestCost:
-        globalBestCost = tempParticle.bestCost
-        for j in range(3):
-            globalBestPosition[j] = tempParticle.position[j]
-
-
-bestCostsOfEachIteration = []
-
 
 ############################################################Rastring
 X = np.linspace(-5.12, 5.12, 100)
@@ -125,8 +109,31 @@ Z = (X**2 - 10 * np.cos(2 * np.pi * X)) + \
 
 ##############################################################
 def mainPSO():
-    global globalBestCost, w
+
+    global globalBestCost, w, tempParticle,globalBestPosition
     a = 0
+    ##Initialization of population
+    population = []
+    globalBestCost = 9999999999999999999  #this values are overwritten below
+    globalBestPosition = [0,0,0] # this values are overwritten below
+    bestCostsOfEachIteration = []
+
+    for i in range(3): ##init of first particle in population
+        tempParticle = Particle()
+        population.append(tempParticle)
+        globalBestPosition[i] = tempParticle.position[i]
+    globalBestCost = tempParticle.cost
+
+    for i in range(swarmSize-1): ## init of rest of population
+        tempParticle = Particle()
+        population.append(tempParticle)
+        if tempParticle.bestCost < globalBestCost:
+            globalBestCost = tempParticle.bestCost
+            for j in range(3):
+                globalBestPosition[j] = tempParticle.position[j]
+
+    ##end of initialization
+
     for i in range(maxNumberOfIterations):
         for particle in population:
 
