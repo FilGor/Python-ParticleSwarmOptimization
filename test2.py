@@ -52,7 +52,7 @@ maxNumberOfIterations = 1000
 swarmSize = 3
 w = 2  #wsp. inercji
 wdamp = 0.99
-c1 = 3  #wsp. personal acc
+c1 = 5  #wsp. personal acc
 c2 = 2  #wsp. social acc
 
 maxVelocity = (upperBound -lowerBound) * 0.2
@@ -90,7 +90,7 @@ class Particle:
 
     def updatePosition(self):
         for i in range(2):
-            self.position[i] = self.position[i] + self.velocity[i] /20
+            self.position[i] = self.position[i] + self.velocity[i] /50
             if self.position[i] > upperBound:
                 self.position[i] = upperBound
             if self.position[i] < lowerBound:
@@ -118,8 +118,8 @@ def mainPSO():
     globalBestPosition = [0,0,0] # this values are overwritten below
     bestCostsOfEachIteration = []
     tempParticle = Particle()
+    population.append(tempParticle)
     for i in range(3): ##init of first particle in population
-        population.append(tempParticle)
         globalBestPosition[i] = tempParticle.position[i]
     globalBestCost = tempParticle.cost
 
@@ -158,7 +158,7 @@ def mainPSO():
             plt.suptitle("Global best cost:")
             plt.title(globalBestCost)
             print(f'GLOBAL BEST:',globalBestCost)
-        plt.pause(0.05)
+        plt.pause(0.01)
         w = w *wdamp
         ax.clear()
         ax.plot_wireframe(X, Y, Z, alpha=0.1)
