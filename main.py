@@ -50,10 +50,10 @@ upperBound = 5.12
 
 maxNumberOfIterations = 1000
 swarmSize = 3
-w = 2  #wsp. inercji
+w = 2  #współczynnik bezwładności, określa wpływ prędkości w poprzednim kroku
 wdamp = 0.99
-c1 = 3  #wsp. personal acc
-c2 = 2  #wsp. social acc
+c1 = 3  #współczynnik dążenia do najlepszego lokalnego rozwiązania
+c2 = 2  # współczynnik dążenia do najlepszego globalnego rozwiązania
 
 maxVelocity = (upperBound -lowerBound) * 0.2
 minVelocity = maxVelocity * -1
@@ -100,7 +100,6 @@ class Particle:
         self.position[2] = func(self)
 
 
-
 ############################################################Rastring
 X = np.linspace(-5.12, 5.12, 100)
 Y = np.linspace(-5.12, 5.12, 100)
@@ -113,7 +112,6 @@ Z = tridimentionalfunction
 
 ##############################################################
 def mainPSO():
-
     global globalBestCost, w, tempParticle,globalBestPosition
     a = 0
     ##Initialization of population
@@ -163,11 +161,12 @@ def mainPSO():
             print(particle.position[0], particle.position[1], particle.position[2])
             plt.suptitle("Global best cost:")
             plt.title(globalBestCost)
-            print(f'GLOBAL BEST:',globalBestCost)
+        print(f'GLOBAL BEST:',globalBestCost)
         plt.pause(0.05)
         w = w *wdamp
         ax.clear()
         ax.plot_wireframe(X, Y, Z, alpha=0.1)
+
 
 
 
