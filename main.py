@@ -52,11 +52,13 @@ maxNumberOfIterations = 1000
 swarmSize = 3
 w = 2  #wsp. inercji
 wdamp = 0.99
-c1 = 5  #wsp. personal acc
+c1 = 3  #wsp. personal acc
 c2 = 2  #wsp. social acc
 
 maxVelocity = (upperBound -lowerBound) * 0.2
 minVelocity = maxVelocity * -1
+velocityMultiplier = 1
+
 ####Particle####
 
 class Particle:
@@ -90,7 +92,7 @@ class Particle:
 
     def updatePosition(self):
         for i in range(2):
-            self.position[i] = self.position[i] + self.velocity[i] /50
+            self.position[i] = self.position[i] + self.velocity[i] * velocityMultiplier
             if self.position[i] > upperBound:
                 self.position[i] = upperBound
             if self.position[i] < lowerBound:
@@ -104,8 +106,10 @@ X = np.linspace(-5.12, 5.12, 100)
 Y = np.linspace(-5.12, 5.12, 100)
 X, Y = np.meshgrid(X, Y)
 
-Z = (X**2 - 10 * np.cos(2 * np.pi * X)) + \
+tridimentionalfunction = (X**2 - 10 * np.cos(2 * np.pi * X)) + \
   (Y**2 - 10 * np.cos(2 * np.pi * Y)) + 20
+
+Z = tridimentionalfunction
 
 ##############################################################
 def mainPSO():
@@ -132,7 +136,9 @@ def mainPSO():
                 globalBestPosition[j] = tempParticle.position[j]
 
     ##end of initialization
-
+    # Attaching 3D axis to the figure
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
     for i in range(maxNumberOfIterations):
 
         for particle in population:
@@ -158,16 +164,10 @@ def mainPSO():
             plt.suptitle("Global best cost:")
             plt.title(globalBestCost)
             print(f'GLOBAL BEST:',globalBestCost)
-        plt.pause(0.01)
+        plt.pause(0.05)
         w = w *wdamp
         ax.clear()
         ax.plot_wireframe(X, Y, Z, alpha=0.1)
 
-# Attaching 3D axis to the figure
-fig = plt.figure()
-ax = fig.add_subplot(projection="3d")
 
-
-
-mainPSO()
 
