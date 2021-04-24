@@ -10,7 +10,7 @@ def button_clicked():
     main.c1 = c1.get()
     main.c2 = c2.get()
     main.w = w.get()
-    # main.tridimentionalfunction = function.get()
+    main.pickedFunction = function.get()
     main.mainPSO()
 
 
@@ -50,8 +50,9 @@ velocity_entry = ttk.Entry(root, textvariable=velocity_multiplier, width=10)
 
 label7 = ttk.Label(root, text="Funkcja")
 function_entry = ttk.Combobox(root, width=25, textvariable=function)
-function_entry['value'] = ('pierwsza',
-                           'druga')
+function_entry['value'] = ('Funkcja Rastringa',
+                           'Funkcja Stołu Holdera',
+                           'Funkcja Eggholder')
 function_entry.current()
 
 button = ttk.Button(root, text="START", command=button_clicked).grid(row=10, column=0)

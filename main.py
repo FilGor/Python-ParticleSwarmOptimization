@@ -1,11 +1,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import mpl_toolkits.mplot3d.axes3d as p3
-import matplotlib.animation as animation
 import random
-import math
-# Fixing random state for reproducibility
+
 ##colors
 colors = np.array([
     (31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
@@ -34,17 +31,112 @@ colors = np.array([
 
 ]) / 255.
 
-####Problem Definition####
 
-def func(particle): #rastring
+##################################### This values are defualts, mostly globals and will be replaced later
+##Defualt function is Rastring:
+X = np.linspace(-5.12, 5.12, 100)
+Y = np.linspace(-5.12, 5.12, 100)
+X, Y = np.meshgrid(X, Y)
+
+tridimentionalfunction = (X**2 - 10 * np.cos(2 * np.pi * X)) + \
+  (Y**2 - 10 * np.cos(2 * np.pi * Y)) + 20
+
+Z = tridimentionalfunction
+lowerBound = -5.12 #
+upperBound = 5.12 #
+
+pickedFunction = "Funkcja Rastringa"
+###########################################
+
+
+def preparingForPickedFunction(pickedFunction):
+    global X, Y, Z, tridimentionalfunction
+    if pickedFunction == "Funkcja Rastringa":
+
+        X = np.linspace(-5.12, 5.12, 100)
+        Y = np.linspace(-5.12, 5.12, 100)
+        X, Y = np.meshgrid(X, Y)
+
+        tridimentionalfunction = (X ** 2 - 10 * np.cos(2 * np.pi * X)) + \
+                                 (Y ** 2 - 10 * np.cos(2 * np.pi * Y)) + 20
+
+        Z = tridimentionalfunction
+    if pickedFunction == "Funkcja Stołu Holdera":
+        X = np.linspace(-10, 10, 100)
+        Y = np.linspace(-10,10, 100)
+        X, Y = np.meshgrid(X, Y)
+
+        tridimentionalfunction = - np.absolute(
+        np.sin(X) * np.cos(Y) * np.exp(
+            np.absolute(1-(np.sqrt(X**2 + Y**2) /np.pi))
+        ))
+
+        Z = tridimentionalfunction
+
+    if pickedFunction == "Funkcja Eggholder":
+        X = np.linspace(-512, 512, 1000)
+        Y = np.linspace(-512, 512, 1000)
+
+        X, Y = np.meshgrid(X, Y)
+        tridimentionalfunction = -(Y+47)*np.sin(np.sqrt(np.absolute(
+            X/2 +(Y+47)))) - X * np.sin(np.sqrt(np.absolute(
+            X-(Y+47)
+        )))
+        Z=tridimentionalfunction
+
+
+
+def CalculateRastringFunc(particle): #rastring
     X=particle.position[0]
     Y=particle.position[1]
     return (X**2 - 10 * np.cos(2 * np.pi * X)) + (Y**2 - 10 * np.cos(2 * np.pi * Y)) + 20
 
 
-dimensions = 3
-lowerBound = -5.12
-upperBound = 5.12
+def CalculateTableFunc(particle): #rastring
+    X=particle.position[0]
+    Y=particle.position[1]
+    return  - np.absolute(
+        np.sin(X) * np.cos(Y) * np.exp(
+            np.absolute(1-(np.sqrt(X**2 + Y**2) /np.pi))
+        ) )
+
+
+
+def CalculateCrossFunc(particle): #rastring
+    X = particle.position[0]
+    Y = particle.position[1]
+    return -(Y+47)*np.sin(np.sqrt(np.absolute(
+            X/2 +(Y+47)))) - X * np.sin(np.sqrt(np.absolute(
+            X-(Y+47)
+        )))
+
+def setAxisAndCalculateCost(particle,ax):
+    global lowerBound, upperBound
+    if pickedFunction == "Funkcja Rastringa":
+        particle.cost = CalculateRastringFunc(particle)
+        ax.set_xlim3d([-5.12, 5.12])
+        ax.set_ylim3d([-5.12, 5.12])
+        ax.set_zlim3d([0, 80])
+        return
+    if pickedFunction == "Funkcja Stołu Holdera":
+        particle.cost = CalculateTableFunc(particle)
+        ax.set_xlim3d([-10, 10])
+        ax.set_ylim3d([-10, 10])
+        ax.set_zlim3d([0,-20])
+        lowerBound=-10
+        upperBound=10
+        return
+    if pickedFunction == "Funkcja Eggholder":
+        particle.cost = CalculateCrossFunc(particle)
+        ax.set_xlim3d([-512, 512])
+        ax.set_ylim3d([-512, 512])
+        ax.set_zlim3d([-1000, 1000])
+        lowerBound = -512
+        upperBound = 512
+        return
+
+
+
 
 ####PSO Parameters####
 
@@ -62,6 +154,7 @@ velocityMultiplier = 1
 ####Particle####
 
 class Particle:
+    global lowerBound, upperBound
     def __init__(self):
         self.position = []
         self.velocity = []
@@ -71,16 +164,22 @@ class Particle:
             self.velocity.append(random.uniform(-1, 1))
             self.position.append(random.uniform(lowerBound,upperBound))
             self.personalBest.append(self.position[i])
-        self.position[2] = func(self) # z value
+        if pickedFunction == "Funkcja Rastringa": #
+            self.position[2] = CalculateRastringFunc(self) # z value
+            self.cost = CalculateRastringFunc(self)  # measuerment/costvalue
+        if pickedFunction == "Funkcja Stołu Holdera":
+            self.position[2] = CalculateTableFunc(self) # z value
+            self.cost = CalculateTableFunc(self)  # measuerment/costvalue
+        if pickedFunction == "Funkcja Eggholder":
+            self.position[2] = CalculateCrossFunc(self) # z value
+            self.cost = CalculateCrossFunc(self)  # measuerment/costvalue
         self.personalBest.append(self.position[2])
-        self.cost = func(self)  # measuerment/costvalue
         self.bestCost = self.cost
 
     def update_velocity(self):
         for i in range(3):
             r1 = random.random()
             r2 = random.random()
-
             global_comp = c1 * r1 * (self.personalBest[i] - self.position[i])
             social_comp = c2 * r2 * (globalBestPosition[i] - self.position[i])
             self.velocity[i] = (w * self.velocity[i] + global_comp + social_comp)
@@ -97,22 +196,19 @@ class Particle:
                 self.position[i] = upperBound
             if self.position[i] < lowerBound:
                 self.position[i] = lowerBound
-        self.position[2] = func(self)
+        if pickedFunction == "Funkcja Rastringa":
+            self.position[2] = CalculateRastringFunc(self)  # z value
+        if pickedFunction == "Funkcja Stołu Holdera":
+            self.position[2] = CalculateTableFunc(self)  # z value
+        if pickedFunction == "Funkcja Eggholder":
+            self.position[2] = CalculateCrossFunc(self)  # z value
 
 
-############################################################Rastring
-X = np.linspace(-5.12, 5.12, 100)
-Y = np.linspace(-5.12, 5.12, 100)
-X, Y = np.meshgrid(X, Y)
-
-tridimentionalfunction = (X**2 - 10 * np.cos(2 * np.pi * X)) + \
-  (Y**2 - 10 * np.cos(2 * np.pi * Y)) + 20
-
-Z = tridimentionalfunction
 
 ##############################################################
 def mainPSO():
-    global globalBestCost, w, tempParticle,globalBestPosition
+    preparingForPickedFunction(pickedFunction)
+    global globalBestCost, w, tempParticle,globalBestPosition, lowerBound, upperBound
     a = 0
     ##Initialization of population
     population = []
@@ -145,10 +241,11 @@ def mainPSO():
              color = particle.color, marker='o')
             particle.update_velocity()
             particle.updatePosition()
-            particle.cost = func(particle)
-            ax.set_xlim3d([-5.12, 5.12])
-            ax.set_ylim3d([-5.12, 5.12])
-            ax.set_zlim3d([0, 80])
+           # particle.cost = func(particle)
+            setAxisAndCalculateCost(particle,ax)
+           # ax.set_xlim3d([-5.12, 5.12])
+          #  ax.set_ylim3d([-5.12, 5.12])
+          #  ax.set_zlim3d([0, 80])
             if particle.cost < particle.bestCost: #localcost
                 particle.bestCost = particle.cost
                 if particle.bestCost < globalBestCost: #globalcost
